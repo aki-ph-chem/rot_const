@@ -1,8 +1,8 @@
 #include <iostream>
 #include <math.h>
-//#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 using namespace std;
-//using namespace Eigen;
+using namespace Eigen;
 
 
 //---------------data for calc------------------------------------
@@ -45,14 +45,11 @@ double conv = pow(10,-26)/6.02;
 // for calc cross term
 
  double crs(double *Mass,double *coor,int x1,int x2){
-
    double constant = 0;
-
-for(int j=0;j<atoms;j++){
+    for(int j=0;j<atoms;j++){
    
     constant += conv*Mass[(int)coor[4*j+0]]*coor[4*j+x1]*coor[4*j+x2];
-}
- 
+    }
  return constant;
  }
 
@@ -88,88 +85,14 @@ zx=0;
 double* g = &g_system[0][0];
 double* M = &mass[0];
 
-  return 0;
-}                               
+                              
+xy = crs(M,g,1,2);
+yz = crs(M,g,2,3);
+zx = crs(M,g,1,3);
 
-
-
-
-/*
-
-
-int main(){  
-
-int atoms = 26;
-double mass[9] = {0,1.008,4.003,6.941,9.012,10.81,12.01,14.01,16.00};
-
-double g_system[][4] = {
-6,0.063906,0.70559,0,
-6,-0.063906,-0.70559,0,
-6,-1.279802,-1.409504,0,
-6,-2.560087,-0.760278,0,
-6,-3.724623,-1.49895,0,
-1,-4.681875,-0.986327,0,
-6,-3.690237,-2.894662,0,
-6,-2.450567,-3.557013,0,
-6,-1.279802,-2.840175,0,
-1,-4.613348,-3.464565,0,
-1,-2.419067,-4.641985,0,
-1,-0.323273,-3.355307,0,
-6,1.279802,1.409504,0,
-6,1.279802,2.840175,0,
-6,2.560087,0.760278,0,
-6,2.450567,3.557013,0,
-1,0.323273,3.355307,0,
-6,3.724623,1.49895,0,
-1,2.613527,-0.322184,0,
-6,3.690237,2.894662,0,
-1,2.419067,4.641985,0,
-1,4.681875,0.986327,0,
-1,4.613348,3.464565,0,
-1,-2.613527,0.322184,0,
-1,0.841896,-1.303675,0,
-1,-0.841896,1.303675,0};
-
-double conv = pow(10,-26)/6.02;
-
-double xx,yy,zz,xy,yz,zx;
-
-xx=0;
-yy=0;
-zz=0;
-xy=0;
-yz=0;
-zx=0;
-
-
-for(int j=0;j<atoms;j++){
- 
-   xy += conv*mass[(int)g_system[j][0]]*g_system[j][1]*g_system[j][2];
-   
-   yz += conv*mass[(int)g_system[j][0]]*g_system[j][3]*g_system[j][2]; 
-
-   zx += conv*mass[(int)g_system[j][0]]*g_system[j][1]*g_system[j][3];
-
- }
-
-/*
- double crs(double *coor,int x1,int x2){
-
-   double const = 
- }                              
-
-
- 
-for(int k=0;k<atoms;k++){
- for(int i = 1;i<=3;i++){
- 
-  xx += conv*mass[(int)g_system[k][0]]*(pow(g_system[k][i],2)-pow(g_system[k][1],2)/3);
-  
-  yy += conv*mass[(int)g_system[k][0]]*(pow(g_system[k][i],2)-pow(g_system[k][2],2)/3);
-
-  zz += conv*mass[(int)g_system[k][0]]*(pow(g_system[k][i],2)-pow(g_system[k][3],2)/3);
-                         }
-}
+xx = drc(M,g,1);
+yy = drc(M,g,2);
+zz = drc(M,g,3);
 
 
 
@@ -205,4 +128,4 @@ rot_const = 2.799275*pow(10,-26)/e_val ;
 cout <<rot_const<<endl;    
 
 return 0;
-}  */
+}  
