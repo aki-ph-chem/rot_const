@@ -2,13 +2,14 @@
 #ifndef _CALC_G_H_
 #define _CALC_G_H_
 
-class calc_g_coor{
+class calc_g{
 
 
 public:
- 
-       double calc_g(double* coor,double* Mass);
-       double calc_g_sys(double* coor,double* g);
+       
+
+       void g(double* coor,double* Mass,int atoms,double* y);
+       void cal_g_sys(double* coor,double* g,int atoms,double* G_sys);
 
 };
 
