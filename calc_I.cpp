@@ -1,6 +1,6 @@
 #include <iostream>
 #include <math.h>
-#include "inercia.h"
+#include "calc_I.h"
 using namespace std;
 
 double I_tensor::crs(double *Mass,double *coor,double conv,int atoms,int x1,int x2){
@@ -16,7 +16,7 @@ double I_tensor::crs(double *Mass,double *coor,double conv,int atoms,int x1,int 
 double I_tensor::drc(double *Mass,double *coor,double conv,int atoms,int x1){
   double constant = 0;
   for(int i=0;i<atoms;i++){
-    for(int j=1;j<=3;j++){
+    for(int j=1;j<4;j++){
 
       constant +=conv*Mass[(int)coor[4*i+0]]*(pow(coor[4*i+j],2)-pow(coor[4*i+x1],2)/3);
   
