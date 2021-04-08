@@ -1,13 +1,15 @@
 # include <iostream>
 #include<eigen3/Eigen/Core>
 #include<eigen3/Eigen/Eigenvalues>
+#include<eigen3/Eigen/Geometry>
+
 #include "calc_g.h"
 #include "calc_I.h"
 
 #include "data.h"
 
-int atoms = 26;  
-double conv = pow(10,-26)/6.02;                  
+const int atoms = 26;  
+const double conv = pow(10,-26)/6.02;                  
 double x_1[4] = {0,0,0,0};
 double x_2[4] = {0,0,0,0};
 
@@ -42,14 +44,33 @@ Eigen::Matrix3d  I_direct;
 Eigen::Array3d  e_val;
 Eigen::Array3d rot_const;
 
+// 回転行列
+double angle;
+Eigen::Vector3d axis;
+Eigen::Vector3d v;
+Eigen::Matrix3d Rot;
+
+//とりあえずz軸に対して90°
+angle = 90;
+axis<<0,0,1;
+Rot = Eigen::AngleAxisd(angle*M_PI/180,axis);
+
 //ソルバの宣言
 Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
 
 
 
-// 重心、重心座標系の計算
+// 重心、重心座標系の計算(1)
 calc.g(co,M,atoms,y);
 calc.cal_g_sys(co,g,atoms,g_sys);  
+
+// 一番目の炭素の座標のみいじる
+v = g_sys.row(0).tail(3);
+g_sys.row(0).tail(3) = Rot*v;
+
+// 重心、重心座標系の計算(2)
+calc.g(co,M,atoms,y);
+calc.cal_g_sys(co,g,atoms,g_sys); 
 
 //慣性テンソルの計算
 
@@ -78,12 +99,13 @@ if (eigensolver.info() != Eigen::Success) abort();
 
 e_val = eigensolver.eigenvalues();
 
-//rot_const = 2.799275*pow(10,-26)/e_val ;
+rot_const = 2.799275*pow(10,-26)/e_val ;
 
-//cout <<rot_const<<endl;      
 
-std::cout<<e_val<<std::endl;
 
+std::cout<<angle<<"°　"<<"回転させた結果"<<std::endl<<std::endl;
+
+std::cout <<rot_const<<std::endl;      
 
 return 0;
 }
