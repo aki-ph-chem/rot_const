@@ -5,6 +5,7 @@
 
 #include "calc_g.h"
 #include "calc_I.h"
+#include "geo.h"
 
 #include "data.h"
 
@@ -16,9 +17,11 @@ double x_2[4] = {0,0,0,0};
 
 int main(){
 
-calc_g    calc; //重心計算クラスのインスタンス化
-data      Data; // 座標データのインスタンス化　
-I_tensor  IT;   //慣性テンソル計算クラスのインスタンス化
+calc_g    calc;  //重心計算クラスのインスタンス化
+data      Data;  // 座標データのインスタンス化　
+I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
+rod_rot   RR;   //回転クラスのインスタンス化
+
 
 // データの読み込みfrom data.h
 
@@ -44,16 +47,12 @@ Eigen::Matrix3d  I_direct;
 Eigen::Array3d  e_val;
 Eigen::Array3d rot_const;
 
-// 回転行列
-double angle;
-Eigen::Vector3d axis;
-Eigen::Vector3d v;
-Eigen::Matrix3d Rot;
-
 //とりあえずz軸に対して90°
-angle = 90;
-axis<<0,0,1;
-Rot = Eigen::AngleAxisd(angle*M_PI/180,axis);
+
+Eigen::Vector3d v;
+double angle = 0;
+RR.axis<<0,0,1;
+RR.set(angle);
 
 //ソルバの宣言
 Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
@@ -66,7 +65,7 @@ calc.cal_g_sys(co,g,atoms,g_sys);
 
 // 一番目の炭素の座標のみいじる
 v = g_sys.row(0).tail(3);
-g_sys.row(0).tail(3) = Rot*v;
+g_sys.row(0).tail(3) = RR.Rot*v;
 
 // 重心、重心座標系の計算(2)
 calc.g(co,M,atoms,y);
@@ -102,7 +101,7 @@ e_val = eigensolver.eigenvalues();
 rot_const = 2.799275*pow(10,-26)/e_val ;
 
 
-
+//結果を表示
 std::cout<<angle<<"°　"<<"回転させた結果"<<std::endl<<std::endl;
 
 std::cout <<rot_const<<std::endl;      
