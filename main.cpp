@@ -1,4 +1,5 @@
 # include <iostream>
+# include <vector>
 #include<eigen3/Eigen/Core>
 #include<eigen3/Eigen/Eigenvalues>
 #include<eigen3/Eigen/Geometry>
@@ -43,33 +44,56 @@ double xx,yy,zz,xy,yz,zx;
 Eigen::Matrix3d  I;
 Eigen::Matrix3d  I_cross;
 Eigen::Matrix3d  I_direct;
-
-Eigen::Array3d  e_val;
-Eigen::Array3d rot_const;
-
-//とりあえずz軸に対して90°
-
-Eigen::Vector3d v;
-double angle = 0;
-RR.axis<<0,0,1;
-RR.set(angle);
-
 //ソルバの宣言
 Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
 
+Eigen::Array3d  e_val;
+Eigen::Array3d rot_const;
+Eigen::Vector3d v;
 
 
 // 重心、重心座標系の計算(1)
 calc.g(co,M,atoms,y);
 calc.cal_g_sys(co,g,atoms,g_sys);  
 
+// set axis (このaxisはフェニル基の2)
+int i,j;
+i = 13;
+j = 1;
+
+RR.axis = g_sys.row(i).tail(3) - g_sys.row(j).tail(3);
+
+double norm = RR.axis.norm();
+
+RR.axis = RR.axis/norm ;
+
+//set angle (axisに対して90°)
+
+double angle = 360;
+RR.set(angle);
+
+/*
 // 一番目の炭素の座標のみいじる
 v = g_sys.row(0).tail(3);
 g_sys.row(0).tail(3) = RR.Rot*v;
+*/
+
+// 13~23の原子を回転させる
+std::vector<int> b = {13,14,15,16,17,18,19,20,21,22,23};
+
+for(int &i : b){
+
+Eigen::Vector3d v = g_sys.row(i).tail(3);
+g_sys.row(i).tail(3) = RR.Rot*v;
+
+}
+
 
 // 重心、重心座標系の計算(2)
-calc.g(co,M,atoms,y);
-calc.cal_g_sys(co,g,atoms,g_sys); 
+calc.g(g_sys,M,atoms,y);
+calc.cal_g_sys(g_sys,g,atoms,g_sys); 
+
+
 
 //慣性テンソルの計算
 
@@ -105,6 +129,7 @@ rot_const = 2.799275*pow(10,-26)/e_val ;
 std::cout<<angle<<"°　"<<"回転させた結果"<<std::endl<<std::endl;
 
 std::cout <<rot_const<<std::endl;      
+
 
 return 0;
 }
