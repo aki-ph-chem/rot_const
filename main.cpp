@@ -1,10 +1,10 @@
 # include <iostream>
 #include<eigen3/Eigen/Core>
+#include<eigen3/Eigen/Eigenvalues>
 #include "calc_g.h"
 #include "calc_I.h"
+
 #include "data.h"
-
-
 
 int atoms = 26;  
 double conv = pow(10,-26)/6.02;                  
@@ -24,8 +24,6 @@ Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double 
 //Eigen::Matrixの左辺はMatrixXdよりtemplateを使うべき(そうしないと参照渡しした時にlvalueとrvalueがbindできなくなる)
 
 double *M = &Data.mass[0];
-
-
 double *g = &x_1[0];
 double *y = &x_2[0];
 
@@ -33,14 +31,20 @@ Eigen::Matrix<double,26,4,Eigen::RowMajor> g_sys;
 g_sys = Eigen::MatrixXd::Zero(26,4);
 
 
-
 double xx,yy,zz,xy,yz,zx;
        xx=0,yy=0,zz=0,xy=0,yz=0,zx=0;
 
+// 各種行列の宣言
 Eigen::Matrix3d  I;
 Eigen::Matrix3d  I_cross;
 Eigen::Matrix3d  I_direct;
+
 Eigen::Array3d  e_val;
+Eigen::Array3d rot_const;
+
+//ソルバの宣言
+Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
+
 
 
 // 重心、重心座標系の計算
@@ -65,30 +69,21 @@ I_direct << xx,0,0,
             0,yy,0,
             0,0,zz;
 
-
 I = I_direct +I_cross + I_cross.transpose();
 
+//対角化計算
+eigensolver.compute(I);
+ 
+if (eigensolver.info() != Eigen::Success) abort();
 
-std::cout<<I<<std::endl;
+e_val = eigensolver.eigenvalues();
 
+//rot_const = 2.799275*pow(10,-26)/e_val ;
 
-/*
+//cout <<rot_const<<endl;      
 
-////////////結果の表示///////////////////
+std::cout<<e_val<<std::endl;
 
-for(int i= 0;i<4;i++){
-
-    cout<<y[i]<<endl;
-}  
-
-cout<<endl<<endl;
-
-for(int i=0;i<atoms;i++){
-   
-      cout<<g_sys(i,0)<<","<<g_sys(i,1)<<","<<g_sys(i,2)<<","<<g_sys(i,3)<<endl;   
-      }   
-
-*/
 
 return 0;
 }
