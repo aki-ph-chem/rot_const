@@ -52,7 +52,6 @@ Eigen::Array3d  e_val;
 Eigen::Array3d rot_const;
 Eigen::Vector3d v;
 
-
 // 重心、重心座標系の計算(1)
 calc.g(co,M,atoms,y);
 calc.cal_g_sys(co,g,atoms,g_sys);  
@@ -68,17 +67,37 @@ double norm = RR.axis.norm();
 
 RR.axis = RR.axis/norm ;
 
-//ここから下の処理をループする予定
-
-//set angle (axisに対して90°)
-
-double angle = 360;
-RR.set(angle);
-
 // 13~23の原子を回転させる
 std::vector<int> b = {13,14,15,16,17,18,19,20,21,22,23};
 
+//ループに関する変数の宣言
 
+double angle;
+double angle_now;
+double step;
+
+//30°を1°ごと回転
+angle_now = 0;
+angle = 30;
+step = 1;
+
+// 総計算回数
+ const int num_of_calc = angle/step;
+
+//結果を格納する配列の宣言
+std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
+
+//ここからループ
+
+for(int i=0;i<num_of_calc;i++){
+
+angle_now = angle_now + step;
+
+RR.set(angle_now);
+
+Result[i][0] = angle_now;
+
+// 13~23の原子を回転させる
 for(int &i : b){
 
 Eigen::Vector3d v = g_sys.row(i).tail(3);
@@ -86,11 +105,9 @@ g_sys.row(i).tail(3) = RR.Rot*v;
 
 }
 
-
 // 重心、重心座標系の計算(2)
 calc.g(g_sys,M,atoms,y);
 calc.cal_g_sys(g_sys,g,atoms,g_sys); 
-
 
 
 //慣性テンソルの計算
@@ -122,12 +139,24 @@ e_val = eigensolver.eigenvalues();
 
 rot_const = 2.799275*pow(10,-26)/e_val ;
 
+Result[i][1] = rot_const(0);
+Result[i][2] = rot_const(1);
+Result[i][3] = rot_const(2);
+
+}
+
+//ここまでループ
+
 
 //結果を表示
-std::cout<<angle<<"°　"<<"回転させた結果"<<std::endl<<std::endl;
+//std::cout<<angle<<"°　"<<"回転させた結果"<<std::endl<<std::endl;
 
-std::cout <<rot_const<<std::endl;      
+//std::cout <<rot_const<<std::endl;  
 
+for(int j=0;j<num_of_calc;j++){
+
+       std::cout<<Result[j][0]<<","<<Result[j][1]<<","<<Result[j][2]<<","<<Result[j][3]<<std::endl;
+}
 
 return 0;
 }
