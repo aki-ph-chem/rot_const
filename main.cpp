@@ -16,6 +16,7 @@ double x_1[4] = {0,0,0,0};
 double x_2[4] = {0,0,0,0};
 
 
+
 int main(){
 
 calc_g    calc;  //重心計算クラスのインスタンス化
@@ -67,19 +68,16 @@ double norm = RR.axis.norm();
 
 RR.axis = RR.axis/norm ;
 
+//ここから下の処理をループする予定
+
 //set angle (axisに対して90°)
 
 double angle = 360;
 RR.set(angle);
 
-/*
-// 一番目の炭素の座標のみいじる
-v = g_sys.row(0).tail(3);
-g_sys.row(0).tail(3) = RR.Rot*v;
-*/
-
 // 13~23の原子を回転させる
 std::vector<int> b = {13,14,15,16,17,18,19,20,21,22,23};
+
 
 for(int &i : b){
 
