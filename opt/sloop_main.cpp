@@ -31,13 +31,16 @@ double x_0,h_0;
 
 double e;
 
-      e = std::pow(10,-4);
+      e = std::pow(10,-1);
 
 sloop S;
 
 S.x = x_0;
 S.h = h_0;
 
+int num_of_loop = 0;
+
+while(abs( dx_func(S.x)) >e){
 
 double sign_h = sign(dx_func(S.x));
 S.start_x(sign_h);
@@ -47,6 +50,7 @@ if(func(S.x_after)>=func(S.x_before))
 {
     while(func(S.x_after)>=func(S.x_before)){
         S.forward_x();
+        num_of_loop ++;
     }
 
     S.forward_stop();
@@ -57,16 +61,18 @@ else
 {
     while(func(S.x_after)<=func(S.x_before)){
         S.back_x();
+        num_of_loop ++;
     }
 
     S.back_stop();
 } 
 
 
-
+}
 
 
 std::cout<<"x = "<<S.x<<": f(x) = "<<func(S.x)<<std::endl;
 std::cout<<"df(x)/dx = "<<dx_func(S.x)<<std::endl;
+std::cout<<num_of_loop<<std::endl;
     return 0;
 }
