@@ -5,7 +5,7 @@
 
 double func(double x){
 
-     return -x*x + 4;
+     return -x*x +  4;
     //return sin(x);
 }
 
@@ -27,7 +27,7 @@ int main(){
     double sign_h;
     double e;
 
-    x_0 = -0.3;
+    x_0 = -1;
     h_0 = 0.001;
     e = pow(10,-2);
 
@@ -50,10 +50,10 @@ int main(){
         S.forward();
         S.f = func(S.x_now);
         S.dx_f = dx_func(S.x_now);
-
         S.Memo(Result,Res_set);
 
         num_of_loop++;
+      std::cout<<num_of_loop<<" 回目のループで現在のxと微分係数は"<<S.x_now<<","<<dx_func(S.x_now)<<std::endl;  
     }
     
 
