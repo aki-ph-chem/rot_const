@@ -16,7 +16,6 @@ double x_1[4] = {0,0,0,0};
 double x_2[4] = {0,0,0,0};
 
 
-
 int main(){
 
 calc_g    calc;  //重心計算クラスのインスタンス化
@@ -79,7 +78,7 @@ double step;
 //30°を1°ごと回転
 angle_now = 0;
 angle = 30;
-step = 1;
+step = 0.1;
 
 // 総計算回数
  const int num_of_calc = angle/step;

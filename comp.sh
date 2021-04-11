@@ -1,6 +1,6 @@
 #!/bin/bash
 
-x_1=main.cpp
+x_1=main.cpp   
 
 x_2=calc_g.cpp
 

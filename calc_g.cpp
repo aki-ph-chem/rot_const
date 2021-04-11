@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void calc_g::g(Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* Mass,int atoms,double* y){
+void calc_g::g( Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* Mass,int atoms,double* y){
 
 double mass_total = 0;
 
@@ -29,7 +29,7 @@ y[j]  = y[j]/mass_total;
 
 
 
-void calc_g::cal_g_sys(Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* g,int atoms,Eigen::Matrix<double,26,4,Eigen::RowMajor>& G_sys){
+void calc_g::cal_g_sys( Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* g,int atoms,Eigen::Matrix<double,26,4,Eigen::RowMajor>& G_sys){
 for(int i=0;i<4;i++){
    for(int j=0;j<atoms;j++){
 
