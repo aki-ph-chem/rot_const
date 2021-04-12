@@ -4,9 +4,9 @@
 #include<math.h>
 #include "grad_2.h"
 
-double func(double x,double y){
+double func(double x,double y,double z){
 
-    return x*x + y*y + 4;
+    return x*x + y*y + z*z + 4;
 }
 
 double func_dx(double x){
@@ -19,27 +19,32 @@ double func_dy(double y){
     return 2*y;
 }
 
+double func_dz(double z){
+
+    return 2*z;
+}
+
 int main(){
 
 grad G;
 
-Eigen::Vector2d x_0;
+Eigen::Vector3d x_0;
 double alpha;
 double delta;
 
 
-x_0<<1,3;   
+x_0<<1,1,1;   
 
 
-alpha = 0.0001;
+alpha = 0.001;
  
-delta = pow(10,-6);
+delta = pow(10,-5);
 
 G.lerning_rate = alpha;
 
 G.x_new = x_0;
 
-G.x_old<<0,0;
+G.x_old<<0,0,0;
 
 
 bool loop_flag = true;
@@ -52,6 +57,7 @@ while(loop_flag){
 
    G.grad(0) = func_dx(G.x_old(0));
    G.grad(1) = func_dy(G.x_old(1));
+   G.grad(2) = func_dz(G.x_old(2));
 
    G.x_reset();
 
@@ -61,7 +67,7 @@ while(loop_flag){
 
 }
 
-Eigen::Vector2d result;
+Eigen::Vector3d result;
 
 result = G.x_new;
 

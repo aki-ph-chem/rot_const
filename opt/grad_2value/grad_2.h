@@ -6,7 +6,7 @@
 
 class grad{
 
-public: Eigen::Vector2d x_old,x_new,grad;
+public: Eigen::Vector3d x_old,x_new,grad;
 
 
         double lerning_rate;
