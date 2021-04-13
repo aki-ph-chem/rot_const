@@ -1,6 +1,9 @@
-# include <iostream>
-# include <vector>
+#include <iostream>
+#include <vector>
+#include <string>
+
 #include <fstream>
+#include <sstream>
 
 #include<eigen3/Eigen/Core>
 #include<eigen3/Eigen/Eigenvalues>
@@ -9,6 +12,7 @@
 #include "calc_g.h"
 #include "calc_I.h"
 #include "geo.h"
+#include "csv_class.h"
 
 #include "data.h"
 
@@ -25,11 +29,64 @@ data      Data;  // 座標データのインスタンス化　
 I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
 rod_rot   RR;   //回転クラスのインスタンス化
 
+csv_class* CC = NULL; //csv読み込みクラスのインスタンス化
+
+//データの読み込み
+
+
+    std::ifstream ifs("test2.csv");
+    std::string line;
+    
+    std::vector<std::string> strvec;
+    std::vector<double> nume_vec(4);
+    std::vector<std::vector<double>> w_data;
+
+    std::vector<int> area = {1,3,4,5};
+    
+    while (getline(ifs, line)) {
+        
+         strvec = CC->split(line, ' ');
+
+         
+     for(int i = 0 ;i<4;i++){
+       
+            nume_vec[i] = stod(strvec[area[i]]);
+     }
+
+         w_data.push_back(nume_vec);
+
+    }
+
 
 // データの読み込みfrom data.h
 
 Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&Data.sys[0][0],26,4);
 //Eigen::Matrixの左辺はMatrixXdよりtemplateを使うべき(そうしないと参照渡しした時にlvalueとrvalueがbindできなくなる)
+
+// wwwに格納したcsvファイルからデータ読み込み
+//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&w_data[0][0],26,4);
+
+std::cout<<co<<std::endl<<std::endl;
+
+for(int i=0;i<26;i++){
+
+       std::cout<<w_data[i][0]<<","<<w_data[i][1]<<","<<w_data[i][2]<<","<<w_data[i][3]<<std::endl;
+
+}
+
+std::cout<<w_data[0][0] + w_data[1][0]<<std::endl;
+
+std::cout<<" from data.h" <<std::endl;
+
+
+for(int i=0;i<26;i++){
+
+       std::cout<<Data.sys[i][0]<<","<<Data.sys[i][1]<<","<<Data.sys[i][2]<<","<<Data.sys[i][3]<<std::endl;
+}
+
+
+
+/*
 
 double *M = &Data.mass[0];
 double *g = &x_1[0];
@@ -165,6 +222,9 @@ for(int j=0;j<num_of_calc;j++){
 
        std::cout<<Result[j][0]<<","<<Result[j][1]<<","<<Result[j][2]<<","<<Result[j][3]<<std::endl;
 }
+
+
+*/
 
 return 0;
 }
