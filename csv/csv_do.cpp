@@ -1,7 +1,9 @@
 #include "csv_class.h"
+
 #include <fstream>
-#include <string>
 #include <sstream>
+
+#include <string>
 #include <vector>
 #include <iostream>
 
@@ -14,52 +16,54 @@ int main(){
 
     ifstream ifs("test2.csv");
     string line;
-   vector<string> strvec ;
+    
+    vector<string> strvec;
     vector<double> v;
+    
     vector<vector<string>> ww;
+    vector<vector<double>> www;
+    int length;
+
+    
     while (getline(ifs, line)) {
         
          strvec = CC->split(line, ' ');
-        
-        ww.push_back(strvec);
-       
+
+         length = strvec.size();
+
+     for(int i=0;i<length;i++){
+         
+         v.push_back(std::stod(strvec.at(i)));
+
+         std::cout<<std::stod(strvec.at(i))<<","<<v[i]<<std::endl;
+     }
+     
+   
+         ww.push_back(strvec);
+        //www.push_back(v);
     }
 
+ 
+
+
+
+/*
+
 for (int i=0; i<26;i++){
-       for (int j=0; j<strvec.size();j++)  
+       for (int j=0; j<length;j++)  
           {
 
-          cout <<ww[i][j]<<endl;
-          //cout <<stod(w[i][j])<<endl;　　　　　　　　//明らかに数字だったらおｋ
-
+          cout <<www[i][j]<<endl;
+          
           }
        
         }     
 
 
-
+*/
 
     return 0;
 }
 
 
 
-
-/*
-int main()
-{   
-   csv_class c;
-
-    ifstream ifs("data.csv");
-
-    string line;
-    while (getline(ifs, line)) {
-        
-        vector<string> strvec = c.split(line, ',');
-        
-        for (int i=0; i<strvec.size();i++){
-            printf("%5d\n", stoi(strvec.at(i)));
-        }
-        
-    }
-}  */
