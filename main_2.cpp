@@ -1,7 +1,9 @@
 #include <iostream>
 #include <vector>
-#include<fstream>
+#include <string>
 
+#include <fstream>
+#include <sstream>
 
 #include<eigen3/Eigen/Core>
 #include<eigen3/Eigen/Eigenvalues>
@@ -10,6 +12,8 @@
 #include "calc_g.h"
 #include "calc_I.h"
 #include "geo.h"
+#include "csv_class.h"
+
 
 #include "data.h"
 
@@ -26,12 +30,81 @@ data      Data;  // 座標データのインスタンス化　
 I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
 rod_rot   RR;   //回転クラスのインスタンス化
 
+csv_class* CC = NULL; //csv読み込みクラスのインスタンス化
+
+//データの読み込み
+
+
+    std::ifstream ifs("test2.csv");
+    std::string line;
+    
+    std::vector<std::string> strvec;
+    std::vector<double> nume_vec(4);
+    double v_data[100][4];
+
+    int num_of_row = 0;
+
+    std::vector<int> area = {1,3,4,5};
+    
+    while (getline(ifs, line)) {
+        
+         strvec = CC->split(line, ' ');
+
+         
+     for(int i = 0 ;i<4;i++){
+       
+            nume_vec[i] = stod(strvec[area[i]]);
+     }
+
+         //w_data.push_back(nume_vec);
+
+     for(int j = 0;j<4;j++){
+
+         v_data[num_of_row][j] = nume_vec[j]; 
+
+     }
+         num_of_row++;
+
+    }
+
+//&w_data[0][0] = NULL;
 
 
 // データの読み込みfrom data.h
 
-Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&Data.sys[0][0],26,4);
+//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&Data.sys[0][0],26,4);
 //Eigen::Matrixの左辺はMatrixXdよりtemplateを使うべき(そうしないと参照渡しした時にlvalueとrvalueがbindできなくなる)
+
+// wwwに格納したcsvファイルからデータ読み込み
+
+//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&w_data[0][0],26,4);
+  
+//Eigen::Matrix<double,26,4> co = Eigen::Map<Eigen::Matrix<double ,26,4>> (&w_data[0][0],26,4);
+
+ Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&v_data[0][0],26,4);
+
+/*
+std::cout<<co<<std::endl<<std::endl;
+
+
+for(int i=0;i<26;i++){
+
+       std::cout<<v_data[i][0]<<","<<v_data[i][1]<<","<<v_data[i][2]<<","<<v_data[i][3]<<std::endl;
+
+}
+
+
+
+std::cout<<" from data.h" <<std::endl;
+
+
+for(int i=0;i<26;i++){
+
+       std::cout<<Data.sys[i][0]<<","<<Data.sys[i][1]<<","<<Data.sys[i][2]<<","<<Data.sys[i][3]<<std::endl;
+}
+
+
+*/
 
 
 
@@ -94,8 +167,9 @@ step = 0.1;
 //結果を格納する配列の宣言
 std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
 
-std::ofstream  ofs("angle_vs_rot_const.csv");
 
+
+std::ofstream ofs("angle_vs_rot_const.csv");
 
 //ここからループ
 
@@ -174,5 +248,3 @@ for(int j=0;j<num_of_calc;j++){
 
 return 0;
 }
-
-
