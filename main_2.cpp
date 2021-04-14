@@ -17,7 +17,10 @@
 
 #include "data.h"
 
-const int atoms = 26;  
+const int   atoms = 26; 
+std::string input_file = "test2.csv" ;
+
+
 const double conv = pow(10,-26)/6.02;                  
 double x_1[4] = {0,0,0,0};
 double x_2[4] = {0,0,0,0};
@@ -29,15 +32,14 @@ calc_g    calc;  //重心計算クラスのインスタンス化
 data      Data;  // 座標データのインスタンス化　
 I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
 rod_rot   RR;   //回転クラスのインスタンス化
-
 csv_class* CC = NULL; //csv読み込みクラスのインスタンス化
 
+
+    
 //データの読み込み
 
-
-    std::ifstream ifs("test2.csv");
+    std::ifstream ifs(input_file);
     std::string line;
-    
     std::vector<std::string> strvec;
     std::vector<double> nume_vec(4);
     double v_data[100][4];
@@ -81,7 +83,7 @@ csv_class* CC = NULL; //csv読み込みクラスのインスタンス化
   
 //Eigen::Matrix<double,26,4> co = Eigen::Map<Eigen::Matrix<double ,26,4>> (&w_data[0][0],26,4);
 
- Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&v_data[0][0],26,4);
+Eigen::Matrix<double,atoms,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,atoms,4,Eigen::RowMajor>> (&v_data[0][0],26,4);
 
 /*
 std::cout<<co<<std::endl<<std::endl;
@@ -112,8 +114,8 @@ double *M = &Data.mass[0];
 double *g = &x_1[0];
 double *y = &x_2[0];
 
-Eigen::Matrix<double,26,4,Eigen::RowMajor> g_sys;
-g_sys = Eigen::MatrixXd::Zero(26,4);
+Eigen::Matrix<double,atoms,4,Eigen::RowMajor> g_sys;
+g_sys = Eigen::MatrixXd::Zero(atoms,4);
 
 
 double xx,yy,zz,xy,yz,zx;
@@ -157,15 +159,15 @@ double angle_now;
 double step;
 
 //30°を1°ごと回転
-angle_now = 0;
-angle = 30;
-step = 0.1;
+angle_now = 360;
+angle = 360;
+step = 0;
 
 // 総計算回数
- const int num_of_calc = angle/step;
+ const int num_of_calc = 1//  angle/step ;
 
 //結果を格納する配列の宣言
-std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
+;std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
 
 
 
