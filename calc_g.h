@@ -3,9 +3,12 @@
 #define _CALC_G_H_
 #include<eigen3/Eigen/Core>
 
+typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
+
+
 class calc_g{
 
-       
+
        /*
 　　　　このクラスはうまく動く
 
@@ -19,18 +22,22 @@ class calc_g{
        
        public:
        
-       int atoms = 3;
+      // int atoms;
 
-       void g(double* Mass,double* y);
+       void g(Matrix_dx4& coor,double* Mass,int atoms,double* y);
+  
+       //void g(double* Mass,double* y);
+       //Matrix_dx4 coor;
        
-       //void set_coordinates(auto coordinates_for_calc);
-         void set_coordinates(Eigen::MatrixXd& coordinates_for_calc(atoms,4));
+
+
+       //void set_coordinates(Matrix_dx4 coordinates_for_calc);
+       
+       //void set_coordinates(Eigen::MatrixXd& coordinates_for_calc(atoms,4));
 
        //void cal_g_sys(Eigen::MatrixXd& coor(atoms,4),double* g,int atoms,Eigen::MatrixXd& G_sys(atoms,4));
        
-       private:
-
-       Eigen::MatrixXd coor;
+      
          
 
        

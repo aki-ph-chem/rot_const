@@ -8,9 +8,10 @@
 #include<eigen3/Eigen/Core>
 #include<eigen3/Eigen/Eigenvalues>
 
-//#include<eigen3/Eigen/Geometry>
+//*#include<eigen3/Eigen/Geometry>
 
 #include "calc_g.h"
+
 /*
 #include "calc_I.h"
 #include "geo.h"
@@ -91,10 +92,19 @@ atoms = num_of_row;
 // 静的配列を使って力技で動くようにした  これはうまく動く
 //Eigen::Matrix<double,atoms,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,atoms,4,Eigen::RowMajor>> (&v_data[0][0],26,4);
 
-
+/* 力技だがうまく動く
 Eigen::MatrixXd coordinates(4,atoms); 
 coordinates= Eigen::Map<Eigen::MatrixXd>(&v_data[0][0],4,atoms);
 auto coordinates_for_calc = coordinates.transpose();
+*/
+
+typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
+
+Matrix_dx4 coordinates;
+coordinates= Eigen::Map<Matrix_dx4>(&v_data[0][0],atoms,4);
+
+//std::cout<<coordinates<<std::endl;
+
 
 /*
 Eigen::MatrixXd A(atoms,4);
@@ -123,20 +133,23 @@ for(int i=0;i<26;i++){
 */
 
 
-
-
 double *M = &Data.mass[0];
 double *g = &x_1[0];
 double *y = &x_2[0];
 
-/*
+/* 最初のやり方
 Eigen::Matrix<double,atoms,4,Eigen::RowMajor> g_sys;
 g_sys = Eigen::MatrixXd::Zero(atoms,4);
 */
 
+/* Eigen::MatrixXdを使うやり方
 Eigen::MatrixXd g_sys(atoms,4);
 g_sys = Eigen::MatrixXd::Zero(atoms,4);
+*/
 
+// 101行目で定義した型を用いる
+Matrix_dx4 g_sys;
+g_sys = Eigen::MatrixXd::Zero(atoms,4);
 
 double xx,yy,zz,xy,yz,zx;
        xx=0,yy=0,zz=0,xy=0,yz=0,zx=0;
@@ -157,10 +170,12 @@ Eigen::Vector3d v;
 
 // 重心、重心座標系の計算(1)
 
+//calc.set_coordinates(coordinates);
+//calc.g(M,y);
 
-calc.atoms = atoms;
-calc.set_coordinates(coordinates_for_calc);
-calc.g(M,y);
+
+
+calc.g(coordinates,M,atoms,y);
 
 
 /* これはうまく動く
@@ -169,7 +184,7 @@ calc.cal_g_sys(co,g,atoms,g_sys);
 */
 
 
-/*
+/*//ちょっくら停止中
 
 // set axis (このaxisはフェニル基の2)
 int i,j;

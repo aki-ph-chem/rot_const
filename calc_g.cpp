@@ -2,6 +2,7 @@
 # include <iostream>
 #include<eigen3/Eigen/Core>
 
+typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
 
 
 //これだけはうまく動く
@@ -11,7 +12,9 @@
 //void calc_g::g( Eigen::Matrix<double,atoms,4,Eigen::RowMajor>& coor,double* Mass,int atoms,double* y){
 //void calc_g::g(Eigen::MatrixXd& coor(atoms,4),double* Mass,int atoms,double* y){
 
-void calc_g::g(double* Mass,double* y){
+
+
+void calc_g::g(Matrix_dx4& coor,double* Mass,double* y){
 
 double mass_total = 0;
 
@@ -35,7 +38,9 @@ y[j]  = y[j]/mass_total;
 }
 
 
-void calc_g::set_coordinates(Eigen::MatrixXd& coordinates_for_calc(atoms,4)){
+
+
+void calc_g::set_coordinates(Matrix_dx4 coordinates_for_calc){
 
    coor = coordinates_for_calc;
 }
