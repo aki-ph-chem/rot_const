@@ -7,17 +7,23 @@
 
 #include<eigen3/Eigen/Core>
 #include<eigen3/Eigen/Eigenvalues>
-#include<eigen3/Eigen/Geometry>
+
+//#include<eigen3/Eigen/Geometry>
 
 #include "calc_g.h"
+/*
 #include "calc_I.h"
 #include "geo.h"
+
+*/
+
 #include "csv_class.h"
-
-
 #include "data.h"
 
-const int   atoms = 26; 
+//const int atoms = 26;  //tamplateで行列のサイズを決定する用
+
+int atoms;
+
 std::string input_file = "test2.csv" ;
 
 
@@ -28,11 +34,15 @@ double x_2[4] = {0,0,0,0};
 
 int main(){
 
+
 calc_g    calc;  //重心計算クラスのインスタンス化
 data      Data;  // 座標データのインスタンス化　
+/*
 I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
 rod_rot   RR;   //回転クラスのインスタンス化
-csv_class* CC = NULL; //csv読み込みクラスのインスタンス化
+*/
+
+csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
 
 
     
@@ -58,7 +68,6 @@ csv_class* CC = NULL; //csv読み込みクラスのインスタンス化
             nume_vec[i] = stod(strvec[area[i]]);
      }
 
-         //w_data.push_back(nume_vec);
 
      for(int j = 0;j<4;j++){
 
@@ -69,24 +78,29 @@ csv_class* CC = NULL; //csv読み込みクラスのインスタンス化
 
     }
 
-//&w_data[0][0] = NULL;
+
+atoms = num_of_row;
+
+// データの読み込みfrom data.h これはうまく動く
+//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&Data.sys[0][0],26,4);//Eigen::Matrixの左辺はMatrixXdよりtemplateを使うべき(そうしないと参照渡しした時にlvalueとrvalueがbindできなくなる)
+
+// v_dataに格納したcsvファイルからデータ読み込み　これはうまく動かない
+//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&v_data[0][0],26,4);  
+//Eigen::Matrix<double,26,4> co = Eigen::Map<Eigen::Matrix<double ,26,4>> (&v_data[0][0],26,4);
+
+// 静的配列を使って力技で動くようにした  これはうまく動く
+//Eigen::Matrix<double,atoms,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,atoms,4,Eigen::RowMajor>> (&v_data[0][0],26,4);
 
 
-// データの読み込みfrom data.h
-
-//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&Data.sys[0][0],26,4);
-//Eigen::Matrixの左辺はMatrixXdよりtemplateを使うべき(そうしないと参照渡しした時にlvalueとrvalueがbindできなくなる)
-
-// wwwに格納したcsvファイルからデータ読み込み
-
-//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&w_data[0][0],26,4);
-  
-//Eigen::Matrix<double,26,4> co = Eigen::Map<Eigen::Matrix<double ,26,4>> (&w_data[0][0],26,4);
-
-Eigen::Matrix<double,atoms,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,atoms,4,Eigen::RowMajor>> (&v_data[0][0],26,4);
+Eigen::MatrixXd coordinates(4,atoms); 
+coordinates= Eigen::Map<Eigen::MatrixXd>(&v_data[0][0],4,atoms);
+auto coordinates_for_calc = coordinates.transpose();
 
 /*
-std::cout<<co<<std::endl<<std::endl;
+Eigen::MatrixXd A(atoms,4);
+
+A = coordinates_for_calc;
+
 
 
 for(int i=0;i<26;i++){
@@ -110,11 +124,17 @@ for(int i=0;i<26;i++){
 
 
 
+
 double *M = &Data.mass[0];
 double *g = &x_1[0];
 double *y = &x_2[0];
 
+/*
 Eigen::Matrix<double,atoms,4,Eigen::RowMajor> g_sys;
+g_sys = Eigen::MatrixXd::Zero(atoms,4);
+*/
+
+Eigen::MatrixXd g_sys(atoms,4);
 g_sys = Eigen::MatrixXd::Zero(atoms,4);
 
 
@@ -132,11 +152,24 @@ Eigen::Array3d  e_val;
 Eigen::Array3d rot_const;
 Eigen::Vector3d v;
 
+
+
+
 // 重心、重心座標系の計算(1)
+
+
+calc.atoms = atoms;
+calc.set_coordinates(coordinates_for_calc);
+calc.g(M,y);
+
+
+/* これはうまく動く
 calc.g(co,M,atoms,y);
 calc.cal_g_sys(co,g,atoms,g_sys);  
+*/
 
 
+/*
 
 // set axis (このaxisはフェニル基の2)
 int i,j;
@@ -246,7 +279,7 @@ for(int j=0;j<num_of_calc;j++){
 }
 
 
-
+*/
 
 return 0;
 }
