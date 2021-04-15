@@ -7,21 +7,14 @@
 
 #include<eigen3/Eigen/Core>
 #include<eigen3/Eigen/Eigenvalues>
-
-//*#include<eigen3/Eigen/Geometry>
+#include<eigen3/Eigen/Geometry>
 
 #include "calc_g.h"
-
-/*
-#include "calc_I.h"
+//#include "calc_I.h"
 #include "geo.h"
-
-*/
-
 #include "csv_class.h"
 #include "data.h"
 
-//const int atoms = 26;  //tamplateで行列のサイズを決定する用
 
 int atoms;
 
@@ -38,11 +31,8 @@ int main(){
 
 calc_g    calc;  //重心計算クラスのインスタンス化
 data      Data;  // 座標データのインスタンス化　
-/*
-I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
+//I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
 rod_rot   RR;   //回転クラスのインスタンス化
-*/
-
 csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
 
 
@@ -103,23 +93,16 @@ typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
 Matrix_dx4 coordinates;
 coordinates= Eigen::Map<Matrix_dx4>(&v_data[0][0],atoms,4);
 
-//std::cout<<coordinates<<std::endl;
-
-
 /*
 Eigen::MatrixXd A(atoms,4);
 
 A = coordinates_for_calc;
-
-
 
 for(int i=0;i<26;i++){
 
        std::cout<<v_data[i][0]<<","<<v_data[i][1]<<","<<v_data[i][2]<<","<<v_data[i][3]<<std::endl;
 
 }
-
-
 
 std::cout<<" from data.h" <<std::endl;
 
@@ -129,9 +112,7 @@ for(int i=0;i<26;i++){
        std::cout<<Data.sys[i][0]<<","<<Data.sys[i][1]<<","<<Data.sys[i][2]<<","<<Data.sys[i][3]<<std::endl;
 }
 
-
 */
-
 
 double *M = &Data.mass[0];
 double *g = &x_1[0];
@@ -147,7 +128,10 @@ Eigen::MatrixXd g_sys(atoms,4);
 g_sys = Eigen::MatrixXd::Zero(atoms,4);
 */
 
+
+
 // 101行目で定義した型を用いる
+
 Matrix_dx4 g_sys;
 g_sys = Eigen::MatrixXd::Zero(atoms,4);
 
@@ -170,12 +154,27 @@ Eigen::Vector3d v;
 
 // 重心、重心座標系の計算(1)
 
-//calc.set_coordinates(coordinates);
-//calc.g(M,y);
+calc.set_info(M,y);
+calc.atoms = atoms;
+
+calc.set_coordinates(coordinates);
+calc.g();
+
+
+for(int i=0;i<4;i++){
+
+       std::cout<<y[i]<<std::endl;
+}
 
 
 
-calc.g(coordinates,M,atoms,y);
+//calc.cal_g_sys(y);
+
+
+
+
+
+
 
 
 /* これはうまく動く
@@ -184,7 +183,8 @@ calc.cal_g_sys(co,g,atoms,g_sys);
 */
 
 
-/*//ちょっくら停止中
+/*
+//ちょっくら停止中
 
 // set axis (このaxisはフェニル基の2)
 int i,j;
@@ -213,6 +213,8 @@ step = 0;
 
 // 総計算回数
  const int num_of_calc = 1//  angle/step ;
+
+/*
 
 //結果を格納する配列の宣言
 ;std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
@@ -296,5 +298,5 @@ for(int j=0;j<num_of_calc;j++){
 
 */
 
-return 0;
+;return 0;
 }

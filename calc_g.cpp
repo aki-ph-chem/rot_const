@@ -14,7 +14,9 @@ typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
 
 
 
-void calc_g::g(Matrix_dx4& coor,double* Mass,double* y){
+//void calc_g::g(Matrix_dx4& coor,double* Mass,double* y){
+
+void calc_g::g(double* Mass,double* y){
 
 double mass_total = 0;
 
@@ -39,18 +41,20 @@ y[j]  = y[j]/mass_total;
 
 
 
-
 void calc_g::set_coordinates(Matrix_dx4 coordinates_for_calc){
 
    coor = coordinates_for_calc;
 }
 
 
-/*　これはうまく動く
-void calc_g::cal_g_sys( Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* g,int atoms,Eigen::Matrix<double,26,4,Eigen::RowMajor>& G_sys){
+
+//これはうまく動く
+//void calc_g::cal_g_sys( Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* g,int atoms,Eigen::Matrix<double,26,4,Eigen::RowMajor>& G_sys){
 
 //void calc_g::cal_g_sys( Eigen::Matrix<double,atoms,4,Eigen::RowMajor>& coor,double* g,int atoms,Eigen::Matrix<double,atoms,4,Eigen::RowMajor>& G_sys){
 //void calc_g::cal_g_sys(Eigen::MatrixXd& coor(atoms,4),double* g,int atoms,Eigen::MatrixXd& G_sys(atoms,4)){
+
+void calc_g::cal_g_sys(double* g){
 
 for(int i=0;i<4;i++){
    for(int j=0;j<atoms;j++){
@@ -60,5 +64,5 @@ for(int i=0;i<4;i++){
 }
 
 } 
-*/
+
 

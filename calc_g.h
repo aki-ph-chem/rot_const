@@ -3,7 +3,6 @@
 #define _CALC_G_H_
 #include<eigen3/Eigen/Core>
 
-typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
 
 
 class calc_g{
@@ -21,19 +20,32 @@ class calc_g{
        
        
        public:
-       
-      // int atoms;
 
-       void g(Matrix_dx4& coor,double* Mass,int atoms,double* y);
-  
+       typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
+       
+       int atoms;
+
        //void g(double* Mass,double* y);
-       //Matrix_dx4 coor;
+       //void cal_g_sys(double* g,int atoms,Eigen::MatrixXd& G_sys(atoms,4));
        
+       void cal_g_sys(double* g);
 
-
-       //void set_coordinates(Matrix_dx4 coordinates_for_calc);
+       void g();
        
-       //void set_coordinates(Eigen::MatrixXd& coordinates_for_calc(atoms,4));
+       public:  Matrix_dx4 G_sys;
+
+       private: Matrix_dx4 coor;
+
+       public:  void set_coordinates(Matrix_dx4 coordinates_for_calc);
+
+       private: double* Mass;
+                double* y;
+
+       public:  void set_info(double*mass,double*y_0); 
+
+        
+       
+       
 
        //void cal_g_sys(Eigen::MatrixXd& coor(atoms,4),double* g,int atoms,Eigen::MatrixXd& G_sys(atoms,4));
        
