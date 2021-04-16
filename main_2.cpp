@@ -10,7 +10,7 @@
 #include<eigen3/Eigen/Geometry>
 
 #include "calc_g.h"
-//#include "calc_I.h"
+#include "calc_I.h"
 #include "geo.h"
 #include "csv_class.h"
 #include "data.h"
@@ -23,7 +23,7 @@ std::string input_file = "test2.csv" ;
 
 const double conv = pow(10,-26)/6.02;                  
 double x_1[4] = {0,0,0,0};
-double x_2[4] = {0,0,0,0};
+//double x_2[4] = {0,0,0,0};
 
 
 int main(){
@@ -31,7 +31,7 @@ int main(){
 
 calc_g    calc;  //重心計算クラスのインスタンス化
 data      Data;  // 座標データのインスタンス化　
-//I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
+I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
 rod_rot   RR;   //回転クラスのインスタンス化
 csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
 
@@ -41,6 +41,7 @@ csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
 
     std::ifstream ifs(input_file);
     std::string line;
+    
     std::vector<std::string> strvec;
     std::vector<double> nume_vec(4);
     double v_data[100][4];
@@ -116,7 +117,7 @@ for(int i=0;i<26;i++){
 
 double *M = &Data.mass[0];
 double *g = &x_1[0];
-double *y = &x_2[0];
+//double *y = &x_2[0];
 
 /* 最初のやり方
 Eigen::Matrix<double,atoms,4,Eigen::RowMajor> g_sys;
@@ -154,27 +155,16 @@ Eigen::Vector3d v;
 
 // 重心、重心座標系の計算(1)
 
-calc.set_info(M,y);
+calc.set_info(M,g);
 calc.atoms = atoms;
+calc.G_sys = g_sys;
+
+
 
 calc.set_coordinates(coordinates);
+
 calc.g();
-
-
-for(int i=0;i<4;i++){
-
-       std::cout<<y[i]<<std::endl;
-}
-
-
-
-//calc.cal_g_sys(y);
-
-
-
-
-
-
+calc.cal_g_sys(g);
 
 
 /* これはうまく動く
@@ -183,7 +173,7 @@ calc.cal_g_sys(co,g,atoms,g_sys);
 */
 
 
-/*
+
 //ちょっくら停止中
 
 // set axis (このaxisはフェニル基の2)
@@ -191,7 +181,7 @@ int i,j;
 i = 13;
 j = 1;
 
-RR.axis = g_sys.row(i).tail(3) - g_sys.row(j).tail(3);
+RR.axis = calc.G_sys.row(i).tail(3) - calc.G_sys.row(j).tail(3);
 
 double norm = RR.axis.norm();
 
@@ -214,18 +204,18 @@ step = 0;
 // 総計算回数
  const int num_of_calc = 1//  angle/step ;
 
-/*
+
 
 //結果を格納する配列の宣言
 ;std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
 
 
 
-std::ofstream ofs("angle_vs_rot_const.csv");
+//std::ofstream ofs("angle_vs_rot_const.csv");
 
 //ここからループ
 
-for(int i=0;i<num_of_calc;i++){
+//for(int i=0;i<num_of_calc;i++){
 
 angle_now = angle_now + step;
 
@@ -234,25 +224,30 @@ RR.set(angle_now);
 // 13~23の原子を回転させる
 for(int &i : b){
 
-Eigen::Vector3d v = g_sys.row(i).tail(3);
-g_sys.row(i).tail(3) = RR.Rot*v;
+Eigen::Vector3d v = calc.G_sys.row(i).tail(3);
+calc.G_sys.row(i).tail(3) = RR.Rot*v;
 
 }
 
 // 重心、重心座標系の計算(2)
-calc.g(g_sys,M,atoms,y);
-calc.cal_g_sys(g_sys,g,atoms,g_sys); 
+//calc.g(g_sys,M,atoms,y);
+//calc.cal_g_sys(g_sys,g,atoms,g_sys);
 
+calc.set_coordinates(calc.G_sys);
+calc.g();
+calc.cal_g_sys(g);
+
+/*
 
 //慣性テンソルの計算
 
-xy = IT.crs(M,g_sys,conv,atoms,1,2);
-yz = IT.crs(M,g_sys,conv,atoms,2,3);
+xy = IT.crs(M,calc.G_sys,conv,atoms,1,2);
+yz = IT.crs(M,calc.G_sys,conv,atoms,2,3);
 zx = IT.crs(M,g_sys,conv,atoms,1,3);
 
-xx = IT.drc(M,g_sys,conv,atoms,1);
-yy = IT.drc(M,g_sys,conv,atoms,2);
-zz = IT.drc(M,g_sys,conv,atoms,3);   
+xx = IT.drc(M,calc.G_sys,conv,atoms,1);
+yy = IT.drc(M,calc.G_sys,conv,atoms,2);
+zz = IT.drc(M,calc.G_sys,conv,atoms,3);   
 
 I_cross << 0,-xy,-zx,
            0,0,-yz,
@@ -280,7 +275,8 @@ Result[i][3] = rot_const(2);
 
 ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::endl;
 
-}
+*/
+//}
 
 //ここまでループ
 
@@ -290,13 +286,15 @@ ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::en
 
 //std::cout <<rot_const<<std::endl;  
 
+/*
+
 for(int j=0;j<num_of_calc;j++){
 
        std::cout<<Result[j][0]<<","<<Result[j][1]<<","<<Result[j][2]<<","<<Result[j][3]<<std::endl;
 }
 
-
 */
 
-;return 0;
+
+return 0;
 }
