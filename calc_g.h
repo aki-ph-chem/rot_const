@@ -23,25 +23,25 @@ class calc_g{
 
        typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
        
-       int atoms;
+       int num_of_atoms;
 
        //void g(double* Mass,double* y);
        //void cal_g_sys(double* g,int atoms,Eigen::MatrixXd& G_sys(atoms,4));
        
        void cal_g_sys(double* g);
 
-       void g();
+       void calc_g_point();
        
        public:  Matrix_dx4 G_sys;
 
-       private: Matrix_dx4 coor;
+       private: Matrix_dx4 coordinates;
 
        public:  void set_coordinates(Matrix_dx4 coordinates_for_calc);
 
        private: double* Mass;
-                double* y;
+                double* g_point;
 
-       public:  void set_info(double*mass,double*y_0); 
+       public:  void set_info(double*mass,double* g_point_0); 
 
         
        

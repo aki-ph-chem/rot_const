@@ -16,15 +16,11 @@
 #include "data.h"
 
 
-int atoms;
-
-std::string input_file = "test2.csv" ;
-
-
+int num_of_atoms;
 const double conv = pow(10,-26)/6.02;                  
-double x_1[4] = {0,0,0,0};
-//double x_2[4] = {0,0,0,0};
+double g_point_0[4] = {0,0,0,0};
 
+std::string name_of_input_file = "test2.csv" ;
 
 int main(){
 
@@ -39,7 +35,7 @@ csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
     
 //データの読み込み
 
-    std::ifstream ifs(input_file);
+    std::ifstream ifs(name_of_input_file);
     std::string line;
     
     std::vector<std::string> strvec;
@@ -70,71 +66,22 @@ csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
 
     }
 
-
-atoms = num_of_row;
-
-// データの読み込みfrom data.h これはうまく動く
-//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&Data.sys[0][0],26,4);//Eigen::Matrixの左辺はMatrixXdよりtemplateを使うべき(そうしないと参照渡しした時にlvalueとrvalueがbindできなくなる)
-
-// v_dataに格納したcsvファイルからデータ読み込み　これはうまく動かない
-//Eigen::Matrix<double,26,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,26,4,Eigen::RowMajor>> (&v_data[0][0],26,4);  
-//Eigen::Matrix<double,26,4> co = Eigen::Map<Eigen::Matrix<double ,26,4>> (&v_data[0][0],26,4);
-
-// 静的配列を使って力技で動くようにした  これはうまく動く
-//Eigen::Matrix<double,atoms,4,Eigen::RowMajor> co = Eigen::Map<Eigen::Matrix<double ,atoms,4,Eigen::RowMajor>> (&v_data[0][0],26,4);
-
-/* 力技だがうまく動く
-Eigen::MatrixXd coordinates(4,atoms); 
-coordinates= Eigen::Map<Eigen::MatrixXd>(&v_data[0][0],4,atoms);
-auto coordinates_for_calc = coordinates.transpose();
-*/
+num_of_atoms = num_of_row;
 
 typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
 
-Matrix_dx4 coordinates;
-coordinates= Eigen::Map<Matrix_dx4>(&v_data[0][0],atoms,4);
-
-/*
-Eigen::MatrixXd A(atoms,4);
-
-A = coordinates_for_calc;
-
-for(int i=0;i<26;i++){
-
-       std::cout<<v_data[i][0]<<","<<v_data[i][1]<<","<<v_data[i][2]<<","<<v_data[i][3]<<std::endl;
-
-}
-
-std::cout<<" from data.h" <<std::endl;
+Matrix_dx4 coordinates_0;
+coordinates_0= Eigen::Map<Matrix_dx4>(&v_data[0][0],num_of_atoms,4);
 
 
-for(int i=0;i<26;i++){
-
-       std::cout<<Data.sys[i][0]<<","<<Data.sys[i][1]<<","<<Data.sys[i][2]<<","<<Data.sys[i][3]<<std::endl;
-}
-
-*/
-
-double *M = &Data.mass[0];
-double *g = &x_1[0];
-//double *y = &x_2[0];
-
-/* 最初のやり方
-Eigen::Matrix<double,atoms,4,Eigen::RowMajor> g_sys;
-g_sys = Eigen::MatrixXd::Zero(atoms,4);
-*/
-
-/* Eigen::MatrixXdを使うやり方
-Eigen::MatrixXd g_sys(atoms,4);
-g_sys = Eigen::MatrixXd::Zero(atoms,4);
-*/
-
+double *Mass = &Data.mass[0];
+double *g_point = &g_point_0[0];
 
 
 // 101行目で定義した型を用いる
 
 Matrix_dx4 g_sys;
-g_sys = Eigen::MatrixXd::Zero(atoms,4);
+g_sys = Eigen::MatrixXd::Zero(num_of_atoms,4);
 
 double xx,yy,zz,xy,yz,zx;
        xx=0,yy=0,zz=0,xy=0,yz=0,zx=0;
@@ -155,23 +102,15 @@ Eigen::Vector3d v;
 
 // 重心、重心座標系の計算(1)
 
-calc.set_info(M,g);
-calc.atoms = atoms;
+calc.set_info(Mass,g_point);
+calc.num_of_atoms = num_of_atoms;
 calc.G_sys = g_sys;
 
 
 
-calc.set_coordinates(coordinates);
-
-calc.g();
-calc.cal_g_sys(g);
-
-
-/* これはうまく動く
-calc.g(co,M,atoms,y);
-calc.cal_g_sys(co,g,atoms,g_sys);  
-*/
-
+calc.set_coordinates(coordinates_0);
+calc.calc_g_point();
+calc.cal_g_sys(g_point);
 
 
 //ちょっくら停止中
@@ -192,17 +131,17 @@ std::vector<int> b = {13,14,15,16,17,18,19,20,21,22,23};
 
 //ループに関する変数の宣言
 
-double angle;
+double angle_end;
 double angle_now;
 double step;
 
 //30°を1°ごと回転
 angle_now = 360;
-angle = 360;
-step = 0;
+angle_end = 360;
+step = 1;
 
 // 総計算回数
- const int num_of_calc = 1//  angle/step ;
+ const int num_of_calc =  angle_end/step ;
 
 
 
@@ -229,25 +168,24 @@ calc.G_sys.row(i).tail(3) = RR.Rot*v;
 
 }
 
-// 重心、重心座標系の計算(2)
-//calc.g(g_sys,M,atoms,y);
-//calc.cal_g_sys(g_sys,g,atoms,g_sys);
 
 calc.set_coordinates(calc.G_sys);
-calc.g();
-calc.cal_g_sys(g);
+calc.calc_g_point();
+calc.cal_g_sys(g_point);
 
 /*
 
 //慣性テンソルの計算
 
-xy = IT.crs(M,calc.G_sys,conv,atoms,1,2);
-yz = IT.crs(M,calc.G_sys,conv,atoms,2,3);
-zx = IT.crs(M,g_sys,conv,atoms,1,3);
+xy = IT.crs(M,calc.G_sys,conv,num_of_atoms,1,2);
+yz = IT.crs(M,calc.G_sys,conv,num_of_atoms,2,3);
+zx = IT.crs(M,g_sys,conv,num_of_atoms,1,3);
 
-xx = IT.drc(M,calc.G_sys,conv,atoms,1);
-yy = IT.drc(M,calc.G_sys,conv,atoms,2);
-zz = IT.drc(M,calc.G_sys,conv,atoms,3);   
+xx = IT.drc(M,calc.G_sys,conv,num_of_atoms,1);
+yy = IT.drc(M,calc.G_sys,conv,num_of_atoms,2);
+zz = IT.drc(M,calc.G_sys,conv,num_of_atoms,3);   
+
+//atoms
 
 I_cross << 0,-xy,-zx,
            0,0,-yz,
