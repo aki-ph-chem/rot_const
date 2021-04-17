@@ -4,16 +4,6 @@
 
 #include "calc_g.h"
 
-//前verでのクラス
-/*
-class I_tensor{
-
-public: double crs(double *Mass,Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double conv,int atoms,int x1,int x2);
-        double drc(double *Mass,Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double conv,int atoms,int x1);
-
-};
-*/
-
 
 // calc_gを継承した
 
@@ -21,11 +11,15 @@ class I_tensor: public calc_g
 {
 
 public: double conv; // main_2中で　[インスタンス].conv = conv;とする
+        Eigen::Matrix3d I;
 
-public: double crs(int x1,int x2);
-        double drc(int x1);
+public: double calc_crs_term(int x1,int x2);
+        double calc_drt_term(int x1);
+        void calc_I_tensor();
 
 };
+
+
 
 
 
