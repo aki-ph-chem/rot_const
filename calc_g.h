@@ -6,64 +6,29 @@
 
 
 class calc_g{
-
-
-       /*
-　　　　このクラスはうまく動く
-
-       public:
-       
-       void g(Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* Mass,int atoms,double* y);
-       void cal_g_sys(Eigen::Matrix<double,26,4,Eigen::RowMajor>& coor,double* g,int atoms,Eigen::Matrix<double,26,4,Eigen::RowMajor>& G_sys);
-       
-       */
        
        
        public:
 
        typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
+
+
        
        int num_of_atoms;
-
-       //void g(double* Mass,double* y);
-       //void cal_g_sys(double* g,int atoms,Eigen::MatrixXd& G_sys(atoms,4));
        
        void cal_g_sys(double* g);
-
        void calc_g_point();
+       void set_info(double*mass,double* g_point_0); 
        
-       public:  Matrix_dx4 G_sys;
 
-       private: Matrix_dx4 coordinates;
+       public:    Matrix_dx4 G_sys;
+       protected: Matrix_dx4 coordinates;
 
        public:  void set_coordinates(Matrix_dx4 coordinates_for_calc);
-
-       private: double* Mass;
-                double* g_point;
-
-       public:  void set_info(double*mass,double* g_point_0); 
-
-        
        
-       
+       protected: double* Mass;
+                  double* g_point;
 
-       //void cal_g_sys(Eigen::MatrixXd& coor(atoms,4),double* g,int atoms,Eigen::MatrixXd& G_sys(atoms,4));
-       
-      
-         
-
-       
-       /*
-       
-       public:
-
-       static const int atoms = 26;
-
-       void g(Eigen::Matrix<double,atoms,4,Eigen::RowMajor>& coor,double* Mass,int atoms,double* y);
-       void cal_g_sys(Eigen::Matrix<double,atoms,4,Eigen::RowMajor>& coor,double* g,int atoms,Eigen::Matrix<double,atoms,4,Eigen::RowMajor>& G_sys);
-
-       
-       */
 };
 
 

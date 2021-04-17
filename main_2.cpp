@@ -25,11 +25,16 @@ std::string name_of_input_file = "test2.csv" ;
 int main(){
 
 
-calc_g    calc;  //重心計算クラスのインスタンス化
-data      Data;  // 座標データのインスタンス化　
+calc_g    calc;  //重心計算クラスのインスタンス化　
 I_tensor  IT;    //慣性テンソル計算クラスのインスタンス化
+
+
 rod_rot   RR;   //回転クラスのインスタンス化
 csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
+
+data      Data;  // 座標データのインスタンス化
+
+I_tensor C; //calc_gを継承したI_tensorのインスタンス化
 
 
     
@@ -98,7 +103,7 @@ Eigen::Array3d rot_const;
 Eigen::Vector3d v;
 
 
-
+/*
 
 // 重心、重心座標系の計算(1)
 
@@ -107,27 +112,48 @@ calc.num_of_atoms = num_of_atoms;
 calc.G_sys = g_sys;
 
 
-
 calc.set_coordinates(coordinates_0);
 calc.calc_g_point();
 calc.cal_g_sys(g_point);
 
+*/
 
-//ちょっくら停止中
+//重心、重心座標系の計算(1)
+
+C.set_info(Mass,g_point);
+C.conv = conv;
+C.num_of_atoms = num_of_atoms;
+C.G_sys = g_sys;
+
+C.set_coordinates(coordinates_0);
+C.calc_g_point();
+C.cal_g_sys(g_point);
+
+
+
+
 
 // set axis (このaxisはフェニル基の2)
-int i,j;
-i = 13;
-j = 1;
+int atom_1,atom_2;
 
-RR.axis = calc.G_sys.row(i).tail(3) - calc.G_sys.row(j).tail(3);
-
-double norm = RR.axis.norm();
-
-RR.axis = RR.axis/norm ;
+atom_1 = 13;
+atom_2 = 1;
 
 // 13~23の原子を回転させる
-std::vector<int> b = {13,14,15,16,17,18,19,20,21,22,23};
+std::vector<int> phenyl_2 = {13,14,15,16,17,18,19,20,21,22,23};
+
+
+//RR.axis = calc.G_sys.row(atom_1).tail(3) - calc.G_sys.row(atom_2).tail(3);
+
+RR.axis = C.G_sys.row(atom_1).tail(3) - C.G_sys.row(atom_2).tail(3);
+
+double norm_of_axis = RR.axis.norm();
+
+RR.axis = RR.axis/norm_of_axis ;
+
+
+
+
 
 //ループに関する変数の宣言
 
@@ -136,47 +162,65 @@ double angle_now;
 double step;
 
 //30°を1°ごと回転
-angle_now = 360;
-angle_end = 360;
-step = 1;
+angle_now = 0;
+angle_end = 0;
+step = 0;
 
 // 総計算回数
- const int num_of_calc =  angle_end/step ;
-
-
+ const int num_of_calc = 1 //angle_end/step ;
 
 //結果を格納する配列の宣言
 ;std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
 
 
 
+
+
 //std::ofstream ofs("angle_vs_rot_const.csv");
+
+
+std::string name_of_output_file;
+            name_of_output_file = "angle_vs_rot_const.csv";
+std::ofstream ofs(name_of_output_file);
+
+
 
 //ここからループ
 
-//for(int i=0;i<num_of_calc;i++){
+for(int i=0;i<num_of_calc;i++){
 
 angle_now = angle_now + step;
 
 RR.set(angle_now);
 
-// 13~23の原子を回転させる
-for(int &i : b){
 
-Eigen::Vector3d v = calc.G_sys.row(i).tail(3);
-calc.G_sys.row(i).tail(3) = RR.Rot*v;
+// 13~23の原子を回転させる
+for(int &i : phenyl_2){
+
+Eigen::Vector3d v = C.G_sys.row(i).tail(3);
+C.G_sys.row(i).tail(3) = RR.Rot*v;
+//calc.G_sys.row(i).tail(3) = RR.Rot*v;
 
 }
 
 
+/*
 calc.set_coordinates(calc.G_sys);
 calc.calc_g_point();
 calc.cal_g_sys(g_point);
+*/
 
-/*
+
+C.set_coordinates(C.G_sys);
+C.calc_g_point();
+C.cal_g_sys(g_point);
+
+
+std::cout<<C.G_sys<<std::endl;
 
 //慣性テンソルの計算
 
+/*
 xy = IT.crs(M,calc.G_sys,conv,num_of_atoms,1,2);
 yz = IT.crs(M,calc.G_sys,conv,num_of_atoms,2,3);
 zx = IT.crs(M,g_sys,conv,num_of_atoms,1,3);
@@ -184,6 +228,21 @@ zx = IT.crs(M,g_sys,conv,num_of_atoms,1,3);
 xx = IT.drc(M,calc.G_sys,conv,num_of_atoms,1);
 yy = IT.drc(M,calc.G_sys,conv,num_of_atoms,2);
 zz = IT.drc(M,calc.G_sys,conv,num_of_atoms,3);   
+
+*/
+
+
+
+
+xy = C.crs(1,2);
+yz = C.crs(2,3);
+zx = C.crs(1,3);
+
+xx = C.drc(1);
+yy = C.drc(2);
+zz = C.drc(3);
+
+
 
 //atoms
 
@@ -196,6 +255,8 @@ I_direct << xx,0,0,
             0,0,zz;
 
 I = I_direct +I_cross + I_cross.transpose();
+
+
 
 //対角化計算
 eigensolver.compute(I);
@@ -213,8 +274,8 @@ Result[i][3] = rot_const(2);
 
 ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::endl;
 
-*/
-//}
+
+}
 
 //ここまでループ
 
