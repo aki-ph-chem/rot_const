@@ -1,7 +1,7 @@
 
 #This tool is made for pick up coordinates from Gaussian .LOG file
 
-##load library###
+##load library
 
 library(dplyr)
 library(rgl)
@@ -14,10 +14,16 @@ my_working_directory = "c:/Users/simiz/Desktop/rot_const/R"
 setwd(my_working_directory)
 
 
+
+
 ##########  information of input #######
-num_of_atoms = 21
+num_of_atoms = 21                                         # number of atoms
  
-input_file_name = "DIBENZOTHIOPHENE_DFT_3-21G_B3LYP.LOG"
+input_file_name = "DIBENZOTHIOPHENE_DFT_3-21G_B3LYP.LOG"  # name of input file name
+
+name_of_output_file = "dbt.csv"                           # name of output file name
+
+##############################
 
 #load .LOG file
 
@@ -33,8 +39,6 @@ coordinates = Log_file[(num_of_line + 5):(num_of_line + 5 + num_of_atoms -1)]
 
 
 coordinates_numerical_crude = coordinates[] %>% stringr::str_split(" ") %>% type.convert() 
-
-coordinates_numerical_crude
 
 
 A=matrix(0,num_of_atoms,6)
@@ -53,4 +57,12 @@ for(i in 1:num_of_atoms){
 
 coordinates_numerical
 
+
+ファイル出力
+
+
+
+write.table(coordinates_numerical,name_of_output_file,sep = ",",col.name = F)  #コンマ区切り
+
+write.table(coordinates_numerical,name_of_output_file,sep = " ",col.name = F)  #スペース区切り
 
