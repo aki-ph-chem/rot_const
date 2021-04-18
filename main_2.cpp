@@ -21,6 +21,8 @@ const double conv = pow(10,-26)/6.02;
 double g_point_0[4] = {0,0,0,0};
 
 std::string name_of_input_file = "test2.csv" ;
+std::string name_of_output_file = "angle_vs_rot_const.csv";
+            
 
 int main(){
 
@@ -28,10 +30,7 @@ data      Data;  // 座標データのインスタンス化
 rod_rot   RR;   //回転クラスのインスタンス化
 csv_class* CC = nullptr; //csv読み込みクラスのインスタンス化
 
-
 I_tensor C; //calc_gを継承したI_tensorのインスタンス化
-
-
     
 //データの読み込み
 
@@ -78,26 +77,20 @@ double *Mass = &Data.mass[0];
 double *g_point = &g_point_0[0];
 
 
-// 101行目で定義した型を用いる
+// 70行目で定義した型を用いる
 
 Matrix_dx4 g_sys;
 g_sys = Eigen::MatrixXd::Zero(num_of_atoms,4);
 
-double xx,yy,zz,xy,yz,zx;
-       xx=0,yy=0,zz=0,xy=0,yz=0,zx=0;
 
 // 各種行列の宣言
 Eigen::Matrix3d  I;
-Eigen::Matrix3d  I_cross;
-Eigen::Matrix3d  I_direct;
 //ソルバの宣言
 Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
 
 Eigen::Array3d  e_val;
 Eigen::Array3d rot_const;
 Eigen::Vector3d v;
-
-
 
 //重心、重心座標系の計算(1)
 
@@ -110,6 +103,8 @@ C.set_coordinates(coordinates_0);
 C.calc_g_point();
 C.cal_g_sys(g_point);
 
+Matrix_dx4 G_system_old = C.G_sys;
+Matrix_dx4 G_system_new = G_system_old;
 
 
 // set axis (このaxisはフェニル基の2)
@@ -122,7 +117,7 @@ atom_2 = 1;
 std::vector<int> phenyl_2 = {13,14,15,16,17,18,19,20,21,22,23};
 
 
-RR.axis = C.G_sys.row(atom_1).tail(3) - C.G_sys.row(atom_2).tail(3);
+RR.axis = G_system_old.row(atom_1).tail(3) - G_system_old.row(atom_2).tail(3);
 
 double norm_of_axis = RR.axis.norm();
 
@@ -137,23 +132,16 @@ double step;
 
 //30°を1°ごと回転
 angle_now = 0;
-angle_end = 0;
-step = 0;
+angle_end = 360;
+step = 10;
 
 // 総計算回数
- const int num_of_calc = 1 //angle_end/step ;
+ const int num_of_calc = (angle_end-angle_now)/step ;
 
-//結果を格納する配列の宣言
-;std::vector<std::vector<double>> Result(num_of_calc,std::vector<double>(4));
-
-
-std::string name_of_output_file;
-            name_of_output_file = "angle_vs_rot_const.csv";
-std::ofstream ofs(name_of_output_file);
-
-
+;std::ofstream ofs(name_of_output_file);
 
 //ここからループ
+
 
 for(int i=0;i<num_of_calc;i++){
 
@@ -162,43 +150,20 @@ angle_now = angle_now + step;
 RR.set(angle_now);
 
 
+
 // 13~23の原子を回転させる
 for(int &i : phenyl_2){
 
-Eigen::Vector3d v = C.G_sys.row(i).tail(3);
-C.G_sys.row(i).tail(3) = RR.Rot*v;
+Eigen::Vector3d v = G_system_old.row(i).tail(3);
+G_system_new.row(i).tail(3) = RR.Rot*v;
 
 }
 
 
-C.set_coordinates(C.G_sys);
+C.set_coordinates(G_system_new);
 C.calc_g_point();
 C.cal_g_sys(g_point);
 
-/*
-//慣性テンソルの計算
-
-xy = C.calc_crs_term(1,2);
-yz = C.calc_crs_term(2,3);
-zx = C.calc_crs_term(1,3);
-
-xx = C.calc_drt_term(1);
-yy = C.calc_drt_term(2);
-zz = C.calc_drt_term(3);
-
-
-
-I_cross << 0,-xy,-zx,
-           0,0,-yz,
-           0,0,0;
-
-I_direct << xx,0,0,
-            0,yy,0,
-            0,0,zz;
-
-I = I_direct +I_cross + I_cross.transpose();
-
-*/
 
 //慣性テンソルの計算
 
@@ -215,32 +180,10 @@ e_val = eigensolver.eigenvalues();
 
 rot_const = 2.799275*pow(10,-26)/e_val ;
 
-Result[i][0] = angle_now;
-Result[i][1] = rot_const(0);
-Result[i][2] = rot_const(1);
-Result[i][3] = rot_const(2);
 
 ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::endl;
 
-
 }
-
-//ここまでループ
-
-
-//結果を表示
-//std::cout<<angle<<"°　"<<"回転させた結果"<<std::endl<<std::endl;
-
-//std::cout <<rot_const<<std::endl;  
-
-/*
-
-for(int j=0;j<num_of_calc;j++){
-
-       std::cout<<Result[j][0]<<","<<Result[j][1]<<","<<Result[j][2]<<","<<Result[j][3]<<std::endl;
-}
-
-*/
 
 
 return 0;
