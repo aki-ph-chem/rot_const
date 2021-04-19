@@ -20,10 +20,10 @@ int num_of_atoms;
 const double conv = pow(10,-26)/6.02;                  
 double g_point_0[4] = {0,0,0,0};
 
-std::string name_of_input_file = "test2.csv" ;
+std::string name_of_input_file = "dbt.csv" ;
 //std::string name_of_input_file  = "dbt.csv" ;
 
-std::string name_of_output_file = "angle_vs_rot_const.csv";
+std::string name_of_output_file = "angle_vs_rot_const_dbt.csv";
             
 
 int main(){
@@ -74,8 +74,6 @@ typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
 Matrix_dx4 coordinates_0;
 coordinates_0= Eigen::Map<Matrix_dx4>(&v_data[0][0],num_of_atoms,4);
 
-std::cout<<coordinates_0<<std::endl;
-
 
 
 double *Mass = &Data.mass[0];
@@ -114,14 +112,16 @@ Matrix_dx4 G_system_old = C.G_sys;
 Matrix_dx4 G_system_new = G_system_old;
 
 
+
+
 // set axis (このaxisはフェニル基の2)
 int atom_1,atom_2;
 
-atom_1 = 13;
-atom_2 = 1;
+atom_1 = 17;
+atom_2 = 5;
 
 // 13~23の原子を回転させる
-std::vector<int> phenyl_2 = {13,14,15,16,17,18,19,20,21,22,23};
+//std::vector<int> S_atom = {21};
 
 
 RR.axis = G_system_old.row(atom_1).tail(3) - G_system_old.row(atom_2).tail(3);
@@ -131,6 +131,9 @@ double norm_of_axis = RR.axis.norm();
 RR.axis = RR.axis/norm_of_axis ;
 
 
+
+
+
 //ループに関する変数の宣言
 
 double angle_end;
@@ -138,9 +141,9 @@ double angle_now;
 double step;
 
 //30°を1°ごと回転
-angle_now = 0;
-angle_end = 360;
-step = 10;
+angle_now = -0.1;
+angle_end = 30;
+step = 0.1;
 
 // 総計算回数
  const int num_of_calc = (angle_end-angle_now)/step ;
@@ -150,21 +153,31 @@ step = 10;
 //ここからループ
 
 
-for(int i=0;i<num_of_calc;i++){
+//for(int i=0;i<num_of_calc;i++){
 
 angle_now = angle_now + step;
 
 RR.set(angle_now);
 
+std::cout<<RR.Rot<<std::endl;
 
+/*
 
 // 13~23の原子を回転させる
-for(int &i : phenyl_2){
+for(int &i : S_atom){
 
 Eigen::Vector3d v = G_system_old.row(i).tail(3);
 G_system_new.row(i).tail(3) = RR.Rot*v;
 
 }
+
+*/
+
+/*
+
+Eigen::Vector3d v = G_system_old.row(21).tail(3);
+G_system_new.row(21).tail(3) = RR.Rot*v;
+
 
 
 C.set_coordinates(G_system_new);
@@ -193,7 +206,7 @@ ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::en
 }
 
 
-
+*/
 
 return 0;
 }
