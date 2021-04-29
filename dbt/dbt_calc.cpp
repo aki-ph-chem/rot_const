@@ -26,7 +26,7 @@ using vector_s = std::vector<std::string>;
 int num_of_atoms;
 const double conv = pow(10,-26)/6.02;                  
 double g_point_0[4] = {0,0,0,0};
-    double d_angel = 0.001;  //微分の刻み幅
+double d_angel = 0.1;  //微分の刻み幅
 
 string name_of_input_file = "dbt.csv" ;
 string name_of_output_file = "angle_vs_rot_const_dbt.csv";
