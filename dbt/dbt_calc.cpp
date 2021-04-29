@@ -22,9 +22,11 @@ using vector_d = std::vector<double>;
 using vector_s = std::vector<std::string>;
 
 
+
 int num_of_atoms;
 const double conv = pow(10,-26)/6.02;                  
 double g_point_0[4] = {0,0,0,0};
+double d_angel = 0.1;  //微分の刻み幅
 
 string name_of_input_file = "dbt.csv" ;
 string name_of_output_file = "angle_vs_rot_const_dbt.csv";
@@ -32,14 +34,14 @@ string name_of_output_file = "angle_vs_rot_const_dbt.csv";
 
 int main(){
 
-data      Data;  // 座標データのインスタンス化
+data Data;  // 座標データのインスタンス化
+csv  CC;         // csv loading
+
 
 rod_rot   RR;   //回転クラスのインスタンス化
 rod_rot   RR_1;
 rod_rot   RR_2;
-double d_angel;  //微分の刻み幅
 
-csv CC;         // csv loading
 
 I_tensor C;     //calc_gを継承したI_tensorのインスタンス化
 I_tensor C_1;
@@ -71,6 +73,7 @@ std::ifstream ifs(name_of_input_file);
         }
 
        num_of_col++; 
+
 
     }
 
@@ -117,9 +120,22 @@ Eigen::Vector3d v;
 //データの初期化
 
 C.set_info(Mass,g_point);
+C_1.set_info(Mass,g_point);
+C_2.set_info(Mass,g_point);
+
+
 C.conv = conv;
+C_1.conv = conv;
+C_2.conv = conv;
+
 C.num_of_atoms = num_of_atoms;
+C_1.num_of_atoms = num_of_atoms;
+C_2.num_of_atoms = num_of_atoms;
+
 C.G_sys = g_sys;
+C_1.G_sys = g_sys;
+C_2.G_sys = g_sys;
+
 
 
 //重心、重心座標系の計算(1)
@@ -148,9 +164,8 @@ RR.axis = G_system_old.row(atom_1).tail(3) - G_system_old.row(atom_2).tail(3);
 double norm_of_axis = RR.axis.norm();
 
 RR.axis = RR.axis/norm_of_axis;
-RR_1.axis = RR.axis/norm_of_axis;
-RR_2.axis = RR.axis/norm_of_axis;
-
+RR_1.axis = RR.axis;
+RR_2.axis = RR.axis;
 
 
 
@@ -161,7 +176,7 @@ double angle_now;
 double step;
 
 //30°を1°ごと回転
-angle_now = -0.1;
+angle_now = 0.3;
 angle_end = 30;
 step = 0.1;
 
@@ -172,7 +187,6 @@ const int num_of_calc = (angle_end-angle_now)/step ;
 
 //ここからループ
 
-d_angel = 0.1; //刻み幅を0.1に
 
 //for(int i=0;i<num_of_calc;i++){
 
@@ -183,7 +197,6 @@ RR_1.set(angle_now + d_angel);
 RR_2.set(angle_now - d_angel);
 
 
-
 // rot S atom
 v = G_system_old.row(20).tail(3);
 
@@ -192,19 +205,23 @@ G_system_1.row(20).tail(3) = RR_1.Rot*v;
 G_system_2.row(20).tail(3) = RR_2.Rot*v;
 
 
+//ここまではok
+
+
 
 C.set_coordinates(G_system_new);
 C.calc_g_point();
 C.cal_g_sys(g_point);
 
-C_1.set_coordinates(G_system_new);
+C_1.set_coordinates(G_system_1);
 C_1.calc_g_point();
 C_1.cal_g_sys(g_point);
 
 
-C_2.set_coordinates(G_system_new);
+C_2.set_coordinates(G_system_2);
 C_2.calc_g_point();
 C_2.cal_g_sys(g_point);
+
 
 
 //慣性テンソルの計算
@@ -227,27 +244,23 @@ eigensolver.compute(I);
 
 if (eigensolver.info() != Eigen::Success) abort();
 
-e_val = eigensolver.eigenvalues();
-
-rot_const = 2.799275*pow(10,-26)/e_val ;
-
-
 eigensolver.compute(I_1);
 
 if (eigensolver.info() != Eigen::Success) abort();
-
-e_val_1 = eigensolver.eigenvalues();
-
-rot_const_1 = 2.799275*pow(10,-26)/e_val_1 ;
-
 
 eigensolver.compute(I_2);
 
 if (eigensolver.info() != Eigen::Success) abort();
 
+
+
+e_val = eigensolver.eigenvalues();
+e_val_1 = eigensolver.eigenvalues();
 e_val_2 = eigensolver.eigenvalues();
 
-rot_const_2 = 2.799275*pow(10,-26)/e_val_2 ;
+rot_const   =  2.799275*pow(10,-26)/e_val ;
+rot_const_1 =  2.799275*pow(10,-26)/e_val_1 ;
+rot_const_2 =  2.799275*pow(10,-26)/e_val_2 ;
 
 
 ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::endl;
@@ -256,6 +269,11 @@ ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::en
 
 auto Result = ( rot_const_1 - rot_const_2 )/(2*d_angel);
 
+for(int j=0;j<3;j++){
+
+    std::cout<<Result[j]<<std::endl;
+}
 
 return 0;
+
 }
