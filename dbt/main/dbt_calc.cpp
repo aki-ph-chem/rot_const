@@ -120,9 +120,13 @@ Eigen::Vector3d v;
 
 //データの初期化
 
+/*
 C.set_info(Mass,g_point);
 C_1.set_info(Mass,g_point);
 C_2.set_info(Mass,g_point);
+*/
+
+I_tensor::set_info(Mass,g_point);
 
 /*
 C.conv = conv;
@@ -132,11 +136,13 @@ C_2.conv = conv;
 
 I_tensor::conv = conv;
 
-
+/*
 C.num_of_atoms = num_of_atoms;
 C_1.num_of_atoms = num_of_atoms;
 C_2.num_of_atoms = num_of_atoms;
+*/
 
+I_tensor::num_of_atoms = num_of_atoms;
 
 
 C.G_sys = g_sys;
@@ -228,6 +234,7 @@ C_1.cal_g_sys(g_point);
 C_2.set_coordinates(G_system_2);
 C_2.calc_g_point();
 C_2.cal_g_sys(g_point);
+
 
 
 
