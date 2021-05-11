@@ -24,7 +24,7 @@ using vector_s = std::vector<std::string>;
 
 
 int num_of_atoms;
-const double conv = pow(10,-26)/6.02;   //原子量 -> Kgの変換               
+//const double conv = pow(10,-26)/6.02;   //原子量 -> Kgの変換を廃止              
 double g_point_0[4] = {0,0,0,0};
 double d_angel = 0.1;  //微分の刻み幅
 
@@ -134,7 +134,7 @@ C_1.conv = conv;
 C_2.conv = conv;
 */
 
-I_tensor::conv = conv;
+//I_tensor::conv = conv;　原子量 -> kgの変換を廃止
 
 /*
 C.num_of_atoms = num_of_atoms;
@@ -237,7 +237,6 @@ C_2.cal_g_sys(g_point);
 
 
 
-
 //慣性テンソルの計算
 
 C.calc_I_tensor();
@@ -250,8 +249,6 @@ I_1 = C_1.I;
 
 C_2.calc_I_tensor();
 I_2 = C_2.I;
-
-
 
 
 
@@ -274,16 +271,37 @@ e_val = eigensolver.eigenvalues();
 e_val_1 = eigensolver.eigenvalues();
 e_val_2 = eigensolver.eigenvalues();
 
+// ここまでは[angstrom x 原子量]
+
+
+// 慣性モーメント -> 分子定数の変換を廃止
+/*
+
 rot_const   =  2.799275*pow(10,-26)/e_val ;
 rot_const_1 =  2.799275*pow(10,-26)/e_val_1 ;
 rot_const_2 =  2.799275*pow(10,-26)/e_val_2 ;
 
+*/
 
-ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::endl;
+// 回転定数は計算しない
+//ofs<<angle_now<<","<<rot_const(0)<<","<<rot_const(1)<<","<<rot_const(2)<<std::endl;
+
+ofs <<angle_now<<","<<e_val(0)<<","<<e_val(1)<<","<<e_val(2) <<std::endl;
 
 //}
 
-auto Result = ( rot_const_1 - rot_const_2 )/(2*d_angel);
+// 回転定数は計算しない
+//auto Result = ( rot_const_1 - rot_const_2 )/(2*d_angel);
+
+auto Result = (e_val_1 - e_val_2)/(2*d_angel);
+
+std::cout << "moment of inercia " <<std::endl;
+
+std::cout<<e_val_1.transpose()<<std::endl;
+std::cout<<e_val_2.transpose()<<std::endl;
+
+
+std::cout<< "Derivative" <<std::endl; 
 
 for(int j=0;j<3;j++){
 
