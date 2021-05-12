@@ -106,7 +106,8 @@ Eigen::Matrix3d  I_1;
 Eigen::Matrix3d  I_2;
 
 //ソルバの宣言
-Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
+Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver,eigensolver_1,
+                                               eigensolver_2;
 
 Eigen::Array3d  e_val;
 Eigen::Array3d  e_val_1;
@@ -189,7 +190,7 @@ double angle_now;
 double step;
 
 //30°を1°ごと回転
-angle_now = 0.3;
+angle_now = 0;
 angle_end = 30;
 step = 0.1;
 
@@ -217,8 +218,6 @@ G_system_new.row(20).tail(3) = RR.Rot*v;
 G_system_1.row(20).tail(3) = RR_1.Rot*v;
 G_system_2.row(20).tail(3) = RR_2.Rot*v;
 
-
-//ここまではok
 
 
 
@@ -251,25 +250,24 @@ C_2.calc_I_tensor();
 I_2 = C_2.I;
 
 
-
 //対角化計算
 eigensolver.compute(I);
 
 if (eigensolver.info() != Eigen::Success) abort();
 
-eigensolver.compute(I_1);
+eigensolver_1.compute(I_1);
 
-if (eigensolver.info() != Eigen::Success) abort();
+if (eigensolver_1.info() != Eigen::Success) abort();
 
-eigensolver.compute(I_2);
+eigensolver_2.compute(I_2);
 
-if (eigensolver.info() != Eigen::Success) abort();
+if (eigensolver_2.info() != Eigen::Success) abort();
 
 
 
 e_val = eigensolver.eigenvalues();
-e_val_1 = eigensolver.eigenvalues();
-e_val_2 = eigensolver.eigenvalues();
+e_val_1 = eigensolver_1.eigenvalues();
+e_val_2 = eigensolver_2.eigenvalues();
 
 // ここまでは[angstrom x 原子量]
 
@@ -307,6 +305,7 @@ for(int j=0;j<3;j++){
 
     std::cout<<Result[j]<<std::endl;
 }
+
 
 
 return 0;
