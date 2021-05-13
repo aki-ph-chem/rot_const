@@ -4,8 +4,8 @@ add_library(grad
 
 	SHARED
 
-        function.cpp
-	# func_2.cpp   
+	# function.cpp
+	func_2.cpp   
        grad_n.cpp
        )
 
