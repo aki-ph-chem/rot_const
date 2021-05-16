@@ -3,31 +3,38 @@
 #define _CALC_G_H_
 #include<eigen3/Eigen/Core>
 
-
+using Matrix_dx4 = Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor>;
 
 class calc_g{
        
        
-       public:
-
-       typedef Eigen::Matrix<double,Eigen::Dynamic,4,Eigen::RowMajor> Matrix_dx4;
+           
 
 
+       public:  // set number of atoms
+                static int num_of_atoms;
+
+                // set mass & initialize center of mass
+                static void set_info(double* mass, double* g_point_0);
+
+                // center of mass 
+                Matrix_dx4  G_sys;
+                
+                // setting coordinates
+                 void  set_coordinates(Matrix_dx4 coordinates_for_calc);
+
+                 // calclation of center of mass & center of mass sysytem
+                 void cal_g_sys(double* g);
+                 void calc_g_point();
        
-       int num_of_atoms;
-       
-       void cal_g_sys(double* g);
-       void calc_g_point();
-       void set_info(double*mass,double* g_point_0); 
-       
 
-       public:    Matrix_dx4 G_sys;
-       protected: Matrix_dx4 coordinates;
+       protected: 
+                  // setted by function set_coordinates
+                  Matrix_dx4 coordinates;
 
-       public:  void set_coordinates(Matrix_dx4 coordinates_for_calc);
-       
-       protected: double* Mass;
-                  double* g_point;
+                  // setted by function set_info
+                  static double* Mass;
+                  static double* g_point;
 
 };
 

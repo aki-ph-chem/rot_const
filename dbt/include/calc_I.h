@@ -1,22 +1,36 @@
 #ifndef _CALC_I_H_
 #define _CALC_I_H_
 #include<eigen3/Eigen/Core>
+#include<eigen3/Eigen/Eigenvalues>
 
 #include "calc_g.h"
 
 
-// calc_gを継承した
+// This class inherits from class calc_g
 
 class I_tensor: public calc_g
 {
 
 public:
-static double conv; // main_2中で　[インスタンス].conv = conv;とする
-       Eigen::Matrix3d I;
+       // for inercital tensor
+       Eigen::Matrix3d    I;
+       void  calc_I_tensor();
 
-public: double calc_crs_term(int x1,int x2);
+
+       // for eigenvalues
+       Eigen::Vector3d  result;
+       void eigen_value();
+
+       virtual ~I_tensor();
+
+
+private: 
+        // for calclation of elements of inertial tensor
+        double calc_crs_term(int x1,int x2);
         double calc_drt_term(int x1);
-        void calc_I_tensor();
+
+        // declear eigensolver
+        Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver;
 
 };
 

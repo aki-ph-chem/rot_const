@@ -17,6 +17,14 @@ class csv{
             
             std::vector<std::string> split(std::string& reading_now);
 
+    
+    //private: 
+    
+             int num_of_col;
+             std::vector<double> res;
+
+              void read_file(std::string name_of_input_file);
+
 };
 
 
