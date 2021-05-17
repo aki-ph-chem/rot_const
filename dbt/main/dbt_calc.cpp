@@ -87,13 +87,13 @@ grad G;      // gradient class
 init(grad::size_of_vector);
 
 // satart value 
-vector_io::x_old(0) = 1;
+vector_io::x_old(0) = 29.5;
 
 // learning rate
 G.learning_rate = 0.001;
 
 // error
-vector_io::error = pow(10,-5);
+vector_io::error = pow(10,-8);
 
 G.set_x_old(vector_io::x_old);
 
@@ -140,9 +140,7 @@ Eigen::Array3d rot_const_2;
 
 Eigen::Vector3d v;
 
-//データの初期化
-
-
+// set Mass ,number of atoms, center of mass 
 I_tensor::set_info(Mass,g_point);
 I_tensor::num_of_atoms = num_of_atoms;
 
@@ -152,8 +150,7 @@ C_1.G_sys = g_sys;
 C_2.G_sys = g_sys;
 
 
-//重心、重心座標系の計算(1)
-
+// calclation of center of mass , center of mass sysytem
 C.set_coordinates(coordinates_0);
 C.calc_g_point();
 C.cal_g_sys(g_point);
@@ -183,18 +180,16 @@ RR_1.axis = RR.axis;
 RR_2.axis = RR.axis;
 
 
-//ループに関する変数の宣言
-
+// declaer valuables for loop
 double angle_end;
 double angle_now;
 double step;
 
-//30°を1°ごと回転
 angle_now = -0.1;
 angle_end = 31;
 step = 0.1;
 
-// 総計算回数
+// number of total calculation steps 
 const int num_of_calc = (angle_end-angle_now)/step ;
 
 ;std::ofstream ofs(name_of_output_file);
@@ -205,13 +200,18 @@ Eigen::Vector3d e_val,e_val_1, e_val_2,Result;
 bool loop_flag = true;
 int num_of_loop = 0;
 
+G.set_x_old(vector_io::x_old);
+
 // loop start !!
 
 //for(int i=0;i<num_of_calc;i++){
 
 while(loop_flag){ 
 
-angle_now = angle_now + step;
+//angle_now = angle_now + step;
+
+angle_now = G.x_old(0);
+
 
 RR.set(angle_now);
 RR_1.set(angle_now + d_angel);
@@ -241,7 +241,7 @@ C_2.calc_g_point();
 C_2.cal_g_sys(g_point);
 
 
-//慣性テンソルの計算
+// calclation of inertial tensor
 
 C.calc_I_tensor();
 C_1.calc_I_tensor();
@@ -285,9 +285,8 @@ num_of_loop++;
 
 std::cout << "moment of inercia " <<std::endl;
 
-std::cout<<e_val_1.transpose()<<std::endl;
-std::cout<<e_val_2.transpose()<<std::endl;
 
+std::cout<<e_val.transpose()<<std::endl;
 
 std::cout<< "Derivative" <<std::endl; 
 
